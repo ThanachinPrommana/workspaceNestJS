@@ -1,8 +1,11 @@
-import { Injectable, ValidationPipe } from '@nestjs/common';
+import { Injectable, Logger, ValidationPipe } from '@nestjs/common';
 import { registerDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { access } from 'fs';
+import { ConfigService } from '@nestjs/config';
+
+import { PrismaService } from 'src/prisma.service';
 
 
 @Injectable()
@@ -11,18 +14,28 @@ import { access } from 'fs';
 
 export class AnonymousService {
 
-  
+
   constructor(
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private configService: ConfigService,
+    private prisma: PrismaService
 
 
   ) { }
 
-  register(dto: registerDto) {
-    return 'This action will register';
+  async register(dto: registerDto) {
+    
   }
 
   login(dto: LoginDto) {
+
+    const appName = this.configService.get('APP_NAME')
+    const appVersion = +this.configService.get('APP_VERSION');
+    const appDevMode = this.configService.get('APP_DEV_MODE') === true;
+
+    Logger.debug(appName);
+    Logger.debug(appVersion);
+    Logger.debug(appDevMode);
     //TODO:replace this mock user with DB query
     const mockUser = {
       id: 1,
@@ -35,14 +48,14 @@ export class AnonymousService {
     }
 
     const payload = {
-      sub:mockUser.id,
-      email:mockUser.email
+      sub: mockUser.id,
+      email: mockUser.email
     }
 
     const token = this.jwtService.sign(payload);
 
     return {
-      access_token:token
+      access_token: token
     }
   }
 
