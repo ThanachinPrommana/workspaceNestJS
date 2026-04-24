@@ -1,41 +1,52 @@
 #Nest npm INSTALL
-```bash
+<b>```bash</b>
 npm i -g @nestjs/cli
-```bash
+<b>```</b>
+
+<b>```bash</b>
 nest new project-name
+<b>```</b>
 
 TODO TREE
 extention
-```bash
+<b>```bash</b>
 #jest Runner
-```bash
+<b>```</b>
 #Todo Tree
 
 #Start
-```bash
+<b>```bash</b>
 npm run start:dev #if coding
+<b>```</b>
 
 #fastify
-```bash
+<b>```bash</b>
 npm i --save @nestjs/platform-fastify
+<b>```</b>
 
 #lint and format
-```bash
+<b>```bash</b>
 ืnpm rin lint
 npm run format
+<b>```</b>
+
 
 #create another component
-```bash
+<b>```bash</b>
 npm generate resource name-component
+<b>```</b>
 
 #create validator cuz you dont have to create if-else trap valu
-```bash
+<b>```bash</b>
 ืnpm i --save class-validator class-transformer
+<b>```</b>
 
 #install jwt use with guard to connect
-```bash
+<b>```bash</b>
 npm install --save @nestjs/jwt
+<b>```</b>
 
 #install nest config to process file  of .env
-```bash
+<b>```bash</b>
 npm i --save @nestjs/config
+<b>```</b>
