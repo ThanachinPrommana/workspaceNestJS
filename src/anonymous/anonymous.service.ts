@@ -1,4 +1,4 @@
-import { Injectable, Logger, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { registerDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -6,7 +6,8 @@ import { access } from 'fs';
 import { ConfigService } from '@nestjs/config';
 
 import { PrismaService } from 'src/prisma.service';
-
+import { UserService } from 'src/user/user.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 
@@ -18,38 +19,54 @@ export class AnonymousService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    private prisma: PrismaService
+    private prisma: PrismaService,
+    private userService: UserService
 
 
   ) { }
 
   async register(dto: registerDto) {
-    
+    // 1. สั่งให้ UserService ช่วยเช็คว่าอีเมลซ้ำไหม
+    const existingUser = await this.userService.findByEmail(dto.email);
+
+    if (existingUser) {
+      throw new BadRequestException('อีเมลนี้ถูกใช้งานแล้ว');
+    }
+
+    // 2. สุ่มรหัสผ่าน (Business Logic ของฝ่ายต้อนรับ)
+    // const randomPassword = Math.random().toString(36).slice(-8);
+
+    // 3. สั่งให้ UserService บันทึกให้ (ส่งรหัสที่สุ่มได้ไปให้เขา Hash ต่อข้างใน)
+    const newUser = await this.userService.create({
+      firstName:dto.firstName ?? "Unknow",
+      lastName:dto.lastName ?? "Unknow",
+      email: dto.email,
+      password: dto.password,
+      isActive: dto.isActive ?? false
+    });
+
+    return {
+      message: 'สมัครสมาชิกสำเร็จ',
+      id: newUser.id,
+      email: newUser.email
+    };
   }
 
-  login(dto: LoginDto) {
+  async login(dto: LoginDto) {
 
-    const appName = this.configService.get('APP_NAME')
-    const appVersion = +this.configService.get('APP_VERSION');
-    const appDevMode = this.configService.get('APP_DEV_MODE') === true;
+    const user = await this.userService.findByEmailAndPassword(dto.email, dto.password);
 
-    Logger.debug(appName);
-    Logger.debug(appVersion);
-    Logger.debug(appDevMode);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
     //TODO:replace this mock user with DB query
-    const mockUser = {
-      id: 1,
-      email: 'chin@gmail.com',
-      password: '1234'
-    }
 
-    if (dto.email !== mockUser.email || dto.password !== mockUser.password) {
-      return 'Invalid credentials';
-    }
+
 
     const payload = {
-      sub: mockUser.id,
-      email: mockUser.email
+      sub: user.id,
+      email: user.email
     }
 
     const token = this.jwtService.sign(payload);

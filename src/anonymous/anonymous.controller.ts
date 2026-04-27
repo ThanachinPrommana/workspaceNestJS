@@ -13,6 +13,7 @@ export class AnonymousController {
   register(@Body() dto: registerDto) {
     return this.anonymousService.register(dto);
   }
+  
   @Public()
   @Post('login')
   login(@Body() dto: LoginDto) {

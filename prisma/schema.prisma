@@ -12,13 +12,17 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String?
-  isActive Boolean
+  id        Int      @id @default(autoincrement())
+  firstName String?
+  lastName  String?
+  email     String   @unique
+  password  String?
+  isActive  Boolean?
+  carts     Cart[]
 }
 
-model Cart{
-  id Int @id @default(autoincrement())
-  name String
+model Cart {
+  id     Int   @id @default(autoincrement()) //PK
+  user   User? @relation(fields: [userId], references: [id]) //FK
+  userId Int?  @unique
 }
